@@ -1,7 +1,8 @@
 
 select * from pair 
 
-select * from alerta 
+select * from alert
+
 
 select p.id, concat(p.base, p.quote) as ticker, e.name as exchange, p.last_price
 from pair p 
