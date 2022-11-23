@@ -5,11 +5,12 @@ import { useState } from "react";
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Home() {
-  const { data, error, mutate } = useSWR("/api/crypto", fetcher);
+  const { data, error, mutate } = useSWR("/api/crypto", fetcher, { refreshInterval: 2000, refreshWhenHidden: true });
+	useSWR('/api/last_price/update', fetcher, { refreshInterval: 5000, refreshWhenHidden: true })
   const [above, setAbove] = useState(true);
   const [price, setPrice] = useState(0);
   const [ticker, setTicker] = useState(0);
-	
+
   if (error) return "An error has occurred.";
   if (!data) return "Loading...";
 
@@ -76,7 +77,7 @@ export default function Home() {
         {data.map((c) => (
           <tr key={c.id}>
             <td>{c.ticker}</td>
-            <td>{c.price}</td>
+            <td>{c.last_price}</td>
             <td>
               <ul>
                 {c.alerts?.map((a) => (

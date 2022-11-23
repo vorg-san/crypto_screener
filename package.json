@@ -6,6 +6,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "ccxt": "^2.2.5",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
     "mysql2": "^2.3.3",
     "next": "latest",
     "react": "18.2.0",

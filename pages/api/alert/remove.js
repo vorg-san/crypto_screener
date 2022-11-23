@@ -1,9 +1,9 @@
-const db = require('/banco/db.js')
+const db = require('/database/db.js')
 
 export default async function handler(req, res) {
-	let payload = JSON.parse(req.body)
+	let payload = JSON.parse(req.body || '{}')
 
-	if(!payload || !payload.id) {
+	if(!payload.id) {
 		res.status(500).json('Please provide all info')
 		return
 	}
