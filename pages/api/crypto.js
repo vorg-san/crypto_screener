@@ -13,6 +13,7 @@ export default async function handler(req, res) {
 		select id, pair_id, price, above, crossed
 		from alert
 		where removed is null
+			and crossed is null
 	`)
 
 	cryptos.map(c => {
