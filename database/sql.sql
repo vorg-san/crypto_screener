@@ -1,13 +1,23 @@
 
 select * from timeframe  
 
-select * from alert
+select * from alert 
 
 select pair_id, price, above, crossed
 from alert
-where removed is null
+where crossed is not null
 
+select * from candle
 
+select pair_id, start, close
+from ( 
+	select pair_id, start, close, ROW_NUMBER() OVER (PARTITION BY pair_id, timeframe_id ORDER BY start DESC) AS n 
+	from candle
+	where pair_id in (1,2)
+		and timeframe_id = 4
+) t
+where n <= 10
+order by pair_id, start desc 
 
 select p.id, concat(p.base, p.quote) as ticker, e.name as exchange, p.last_price
 from pair p 

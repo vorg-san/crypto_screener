@@ -1,4 +1,5 @@
 const db = require("/database/db.js");
+const query = require('/database/query.js')
 
 export default async function handler(req, res) {
   let cryptos = await db.query(`
@@ -9,21 +10,19 @@ export default async function handler(req, res) {
 		order by last_volume desc
 	`)
 
-	let alerts = await db.query(`
-		select id, pair_id, price, above, crossed
-		from alert
-		where removed is null
-			and crossed is null
-	`)
+	let alerts = await query.alertsActive()
 
 	cryptos.map(c => {
+		c.alerts = []
 		alerts.map(a => {
 			if(c.id === a.pair_id) {
-				if(!c.alerts)
-					c.alerts = []
 				c.alerts.push(a)
 			}
 		})	
+	})
+
+	cryptos.sort((a, b) => {
+		return b.alerts.length - a.alerts.length
 	})
   
   res.json(cryptos);

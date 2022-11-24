@@ -58,6 +58,15 @@ export default function Home() {
 		audio.play()
 	}
 
+	const selectTicker = e => {
+		setTicker(e.target.value)
+		data.map(c => {
+			if(c.id == e.target.value) {
+				setPrice(c.last_price)
+			}
+		})
+	}
+
 	data.map(c => {
 		c.alerts?.map(a => {
 			if((a.above && c.last_price >= a.price) || (!a.above && c.last_price <= a.price)) {
@@ -75,7 +84,7 @@ export default function Home() {
       </Head>
 
       <div>
-				<select value={ticker} onChange={e => setTicker(e.target.value)}>
+				<select value={ticker} onChange={selectTicker}>
 					{data.map(c => (
 						<option value={c.id}>{c.ticker}</option>
 					))}
@@ -102,13 +111,16 @@ export default function Home() {
 			</div>
 			
       <table>
+				<thead>
         <tr>
           <th>Ticker</th>
           <th>Price</th>
           <th>Alerts</th>
           <th></th>
         </tr>
+				</thead>
 
+				<tbody>
         {data.map((c) => (
           <tr key={c.id}>
             <td>{c.ticker}</td>
@@ -125,6 +137,7 @@ export default function Home() {
             </td>
           </tr>
         ))}
+				</tbody>
       </table>
     </div>
   );
