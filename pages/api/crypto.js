@@ -20,10 +20,6 @@ export default async function handler(req, res) {
 			}
 		})	
 	})
-
-	cryptos.sort((a, b) => {
-		return b.alerts.length - a.alerts.length
-	})
   
   res.json(cryptos);
 }

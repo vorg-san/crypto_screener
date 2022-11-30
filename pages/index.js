@@ -4,17 +4,25 @@ import { useState } from "react";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
+const possibleOrderBy = {
+	id: 'id', 
+	strength_1h: 'strength_1h', 
+	alerts: 'alerts'
+}
+
 export default function Home() {
   const { data, error, mutate } = useSWR("/api/crypto", fetcher, { refreshInterval: 2000, refreshWhenHidden: true });
   const crossed_alerts = useSWR("/api/alert/crossed", fetcher, { refreshInterval: 2000, refreshWhenHidden: true });
 	const impulse = useSWR('api/candle/impulse/1h', fetcher, { refreshInterval: 5 * 60 * 1000 })
+	const relative_strength = useSWR('api/candle/relative_strength/1h', fetcher, { refreshInterval: 5 * 60 * 1000 })
 	useSWR('/api/last_price/update', fetcher, { refreshInterval: 5000, refreshWhenHidden: true })
   const [above, setAbove] = useState(true);
   const [price, setPrice] = useState(0);
   const [ticker, setTicker] = useState(0);
+	const [orderBy, setOrderBy] = useState(possibleOrderBy.strength_1h);
 
-  if (error || crossed_alerts.error || impulse.error) return "An error has occurred.";
-  if (!data || !crossed_alerts.data || !impulse.data) return "Loading...";
+  if (error || crossed_alerts.error || impulse.error || relative_strength.error) return "An error has occurred.";
+  if (!data || !crossed_alerts.data || !impulse.data || !relative_strength.data) return "Loading...";
 
   const newAlert = async () => {
 		let res = await fetch('/api/alert/create', {
@@ -80,6 +88,25 @@ export default function Home() {
 			if(c.id == id)
 				c['impulse'] = impulse.data[id]
 		})
+
+		c['relative_strength'] = 0
+		Object.keys(relative_strength.data).map(id => {
+			if(c.id == id)
+				c['relative_strength'] = relative_strength.data[id]
+		})
+	})
+
+	data.sort((a, b) => {
+		switch (orderBy) {
+			case possibleOrderBy.id:
+				return a.id - b.id 
+			case possibleOrderBy.strength_1h:
+				return b.relative_strength - a.relative_strength
+			case possibleOrderBy.alerts:
+				let alert_a = a.alerts.length > 0 ? 1 : 0
+				let alert_b = b.alerts.length > 0 ? 1 : 0
+				return alert_b - alert_a			
+		}
 	})
 
   return (
@@ -106,6 +133,14 @@ export default function Home() {
           onInput={(e) => setPrice(e.target.value)}
         ></input>
         <button onClick={newAlert}>+</button>
+				<br></br><br></br>
+
+				Order by:
+				<select value={orderBy} onChange={e => setOrderBy(e.target.value)}>
+					{Object.values(possibleOrderBy).map(p => (
+						<option value={p}>{p}</option>
+					))}
+				</select>
       </div>
 
 			<div>
@@ -123,6 +158,7 @@ export default function Home() {
           <th>Price</th>
           <th>Alerts</th>
           <th>Impulse 1h</th>
+          <th>Strength 1h</th>
         </tr>
 				</thead>
 
@@ -142,6 +178,7 @@ export default function Home() {
               </ul>
             </td>
 						<td>{c.impulse}</td>
+						<td>{c.relative_strength}</td>
           </tr>
         ))}
 				</tbody>

@@ -29,7 +29,7 @@ export async function candles_last_n_by_timeframe(n, idTimeframe) {
 		from ( 
 			select pair_id, start, close, ROW_NUMBER() OVER (PARTITION BY pair_id, timeframe_id ORDER BY start DESC) AS n 
 			from candle
-			where timeframe_id = ?
+			where timeframe_id = ? 
 		) t
 		where n <= ?
 		order by pair_id, start desc 

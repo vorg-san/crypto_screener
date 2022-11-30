@@ -9,7 +9,7 @@ select pair_id, price, above, crossed
 from alert
 where crossed is not null
 
-select pair_id, count(id) from candle group by pair_id
+select pair_id, count(id), min(`start`), max(`start`) from candle where timeframe_id = 4 group by pair_id order by min(`start`)
 
 select pair_id, start, close
 from ( 

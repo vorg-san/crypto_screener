@@ -1,1 +1,1 @@
-Crypto alert system built in Next.js
+Crypto alert system built in Next.js, picks latest data from Binance.

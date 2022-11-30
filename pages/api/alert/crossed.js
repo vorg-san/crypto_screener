@@ -8,7 +8,7 @@ export default async function handler(req, res) {
 		where a.removed is null
 			and a.crossed is not null
 		order by crossed desc
-		limit 6
+		limit 5
 	`)
   
   res.json(alerts);
