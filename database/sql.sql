@@ -3,11 +3,13 @@ select * from timeframe
 
 select * from alert 
 
+select * from pair
+
 select pair_id, price, above, crossed
 from alert
 where crossed is not null
 
-select * from candle
+select pair_id, count(id) from candle group by pair_id
 
 select pair_id, start, close
 from ( 

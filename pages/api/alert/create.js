@@ -1,4 +1,4 @@
-const db = require('/database/db.js')
+const db = require('../utils/db')
 
 export default async function handler(req, res) {
 	let payload = JSON.parse(req.body || '{}')

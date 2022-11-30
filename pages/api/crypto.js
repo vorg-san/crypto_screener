@@ -1,5 +1,5 @@
-const db = require("/database/db.js");
-const query = require('/database/query.js')
+const db = require('./utils/db')
+const query = require('./utils/query')
 
 export default async function handler(req, res) {
   let cryptos = await db.query(`

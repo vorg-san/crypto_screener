@@ -2,8 +2,8 @@ const moment = require('moment')
 const ccxt = require ('ccxt')
 const _ = require('lodash')
 
-const db = require('/database/db.js')
-const query = require('/database/query.js')
+const db = require('../utils/db')
+const query = require('../utils/query')
 
 export default async function handler(req, res) {
 	let exchanges = await query.exchanges()

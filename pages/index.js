@@ -7,13 +7,14 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function Home() {
   const { data, error, mutate } = useSWR("/api/crypto", fetcher, { refreshInterval: 2000, refreshWhenHidden: true });
   const crossed_alerts = useSWR("/api/alert/crossed", fetcher, { refreshInterval: 2000, refreshWhenHidden: true });
+	const impulse = useSWR('api/candle/impulse/1h', fetcher, { refreshInterval: 5 * 60 * 1000 })
 	useSWR('/api/last_price/update', fetcher, { refreshInterval: 5000, refreshWhenHidden: true })
   const [above, setAbove] = useState(true);
   const [price, setPrice] = useState(0);
   const [ticker, setTicker] = useState(0);
 
-  if (error || crossed_alerts.error) return "An error has occurred.";
-  if (!data || !crossed_alerts.data) return "Loading...";
+  if (error || crossed_alerts.error || impulse.error) return "An error has occurred.";
+  if (!data || !crossed_alerts.data || !impulse.data) return "Loading...";
 
   const newAlert = async () => {
 		let res = await fetch('/api/alert/create', {
@@ -74,6 +75,11 @@ export default function Home() {
 				crossAlert(a.id)
 			}
 		})
+
+		Object.keys(impulse.data).map(id => {
+			if(c.id == id)
+				c['impulse'] = impulse.data[id]
+		})
 	})
 
   return (
@@ -116,7 +122,7 @@ export default function Home() {
           <th>Ticker</th>
           <th>Price</th>
           <th>Alerts</th>
-          <th></th>
+          <th>Impulse 1h</th>
         </tr>
 				</thead>
 
@@ -135,6 +141,7 @@ export default function Home() {
                 ))}
               </ul>
             </td>
+						<td>{c.impulse}</td>
           </tr>
         ))}
 				</tbody>
