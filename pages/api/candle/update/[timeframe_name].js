@@ -35,7 +35,7 @@ export default async function handler(req, res) {
 			
 			try {
 				let lastCandle = await nextCandleStart(pair.id, timeframe)
-				let candles = await exchange.fetchOHLCV(pair.base + '/' + pair.quote, timeframe.name) //use one more param to get older candles moment(old).valueOf()
+				let candles = await exchange.fetchOHLCV(pair.base + '/' + pair.quote, timeframe.name, lastCandle.valueOf())
 				let totalReceived = candles.length
 				
 				console.log(++count + '/' + _.keys(pairs).length, pair.id, pair.base + '/' + pair.quote, totalReceived, lastCandle.format('YYYY-MM-DD HH:mm:SS'))
@@ -53,6 +53,18 @@ export default async function handler(req, res) {
 	res.json('ok')
 }
 
+// async function shouldRun(timeframe)	 {
+// 	let rows = await db.query(
+// 		,
+// 		[timeframe.id]
+// 	)
+	
+// 	if(!rows.length || !rows[0].last)
+// 		return moment().add(timeframe.minutes * (-100), 'minutes')
+// 	else
+// 		return moment(rows[0].last)
+// }
+
 async function nextCandleStart(idPar, timeframe)	 {
 	let rows = await db.query(
 		"select max(start) as last " +
@@ -62,9 +74,9 @@ async function nextCandleStart(idPar, timeframe)	 {
 	)
 	
 	if(!rows.length || !rows[0].last)
-		return moment("1990-01-01")
+		return moment().add(timeframe.minutes * (-100), 'minutes')
 	else
-		return moment(rows[0].last).add(timeframe.minutes * (-1) * 600, 'minutes')
+		return moment(rows[0].last)
 }
 
 async function saveCandle(idPar, time, open, high, low, close, volume, idTtimeframe, minutes) {

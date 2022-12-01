@@ -9,7 +9,24 @@ select pair_id, price, above, crossed
 from alert
 where crossed is not null
 
-select pair_id, count(id), min(`start`), max(`start`) from candle where timeframe_id = 4 group by pair_id order by min(`start`)
+select p.base, p.quote, p.last_price , c.pair_id, count(c.id), min(c.`start`), max(c.`start`) 
+from candle c
+	join pair p on p.id = c.pair_id
+where c.timeframe_id = 4
+	and p.low_volume = 0
+group by c.pair_id 
+order by max(c.`start`)
+
+select min(last) 
+from (
+	select max(start) as last 	from candle c
+		join pair p on p.id = c.pair_id
+	where c.timeframe_id = 4
+		and p.low_volume = 0
+	group by c.pair_id 
+) q
+
+select max(start) as last from candle where pair_id = 12222 and timeframe_id = 4 
 
 select pair_id, start, close
 from ( 

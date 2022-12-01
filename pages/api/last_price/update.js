@@ -19,10 +19,10 @@ export default async function handler(req, res) {
 
 			try {
 				let tickers = await exchange.fetchTickers(pairs_list)
-				
+
 				for(let key in tickers) {
 					let pair = pairs.find(p => key === p.base + '/' + p.quote)
-					
+
 					if(tickers[key].quoteVolume > 500000)
 						db.query(
 							"update pair set last_price = ?, last_volume = ? where id = ? ",
@@ -32,6 +32,16 @@ export default async function handler(req, res) {
 						db.query(
 							"update pair set low_volume = ?, last_volume = ? where id = ? ",
 							[true, tickers[key].quoteVolume, pair.id]
+						)
+
+					pair['updated'] = true
+				}
+
+				for(let i = 0; i < pairs.length; i++) {
+					if(!pairs[i]['updated'])
+						db.query(
+							"update pair set low_volume = ? where id = ? ",
+							[true, pairs[i].id]
 						)
 				}
 			} catch(err) {
