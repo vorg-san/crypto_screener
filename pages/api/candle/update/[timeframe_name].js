@@ -19,6 +19,9 @@ export default async function handler(req, res) {
 	let timeframe = _.filter(timeframes, {'name': timeframe_name})[0]
 	let exchanges = await query.exchanges()
 	let pairs = await query.pairs()
+	let pairs_to_update = await query.pairsShouldUpdate(timeframe.id)
+
+	pairs = pairs.filter(p => pairs_to_update.includes(p.id))
 
 	await Promise.all(exchanges.map(async e => {
 		let exchange = new ccxt[e.name]()
@@ -52,18 +55,6 @@ export default async function handler(req, res) {
 	
 	res.json('ok')
 }
-
-// async function shouldRun(timeframe)	 {
-// 	let rows = await db.query(
-// 		,
-// 		[timeframe.id]
-// 	)
-	
-// 	if(!rows.length || !rows[0].last)
-// 		return moment().add(timeframe.minutes * (-100), 'minutes')
-// 	else
-// 		return moment(rows[0].last)
-// }
 
 async function nextCandleStart(idPar, timeframe)	 {
 	let rows = await db.query(

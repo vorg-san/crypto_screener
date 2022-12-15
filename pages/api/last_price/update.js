@@ -25,13 +25,13 @@ export default async function handler(req, res) {
 
 					if(tickers[key].quoteVolume > 500000)
 						db.query(
-							"update pair set last_price = ?, last_volume = ? where id = ? ",
+							"update pair set low_volume = 0, last_price = ?, last_volume = ? where id = ? ",
 							[tickers[key].last, tickers[key].quoteVolume, pair.id]
 						)
 					else 
 						db.query(
-							"update pair set low_volume = ?, last_volume = ? where id = ? ",
-							[true, tickers[key].quoteVolume, pair.id]
+							"update pair set low_volume = 1, last_volume = ? where id = ? ",
+							[tickers[key].quoteVolume, pair.id]
 						)
 
 					pair['updated'] = true

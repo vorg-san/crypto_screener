@@ -3,7 +3,7 @@ select * from timeframe
 
 select * from alert 
 
-select * from pair
+select * from exchange e 
 
 select pair_id, price, above, crossed
 from alert
@@ -17,15 +17,15 @@ where c.timeframe_id = 4
 group by c.pair_id 
 order by max(c.`start`)
 
-select min(last) 
-from (
-	select max(start) as last 	from candle c
-		join pair p on p.id = c.pair_id
-	where c.timeframe_id = 4
-		and p.low_volume = 0
-	group by c.pair_id 
-) q
-
+-- cryptos to update
+select p.id, max(start) + interval t.minutes minute <= now() as should_updatefrom candle c
+	join pair p on p.id = c.pair_id
+	join timeframe t on t.id = c.timeframe_id 
+where t.id = 4
+	and p.low_volume = 0
+group by c.pair_id 
+having should_update = 1
+	
 select max(start) as last from candle where pair_id = 12222 and timeframe_id = 4 
 
 select pair_id, start, close

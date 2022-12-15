@@ -44,3 +44,16 @@ export async function alertsActive() {
 			and crossed is null
 	`)
 }
+
+export async function pairsShouldUpdate(idTimeframe) {
+	return (await db.query(`
+		select p.id, max(start) + interval t.minutes minute <= now() as should_update
+		from candle c
+			join pair p on p.id = c.pair_id
+			join timeframe t on t.id = c.timeframe_id 
+		where t.id = ?
+			and p.low_volume = 0
+		group by c.pair_id 
+		having should_update = 1
+	`, [idTimeframe])).map(r => r['id'])
+}
