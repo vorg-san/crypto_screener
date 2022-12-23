@@ -3,7 +3,9 @@ select * from timeframe
 
 select * from alert 
 
-select * from exchange e 
+select * from exchange 
+
+select * from trade
 
 select pair_id, price, above, crossed
 from alert
