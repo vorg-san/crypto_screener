@@ -54,22 +54,52 @@ const trades = {
 		amount: -3898.2999999999997,
 		cost: -6728.4658,
 		price: 1.726
+	},
+	'1794508529': {
+		datetime: '2022-12-01T02:23:04.965Z',
+		side: 'sell',
+		amount: -3898.2999999999997,
+		cost: -6728.4658,
+		price: 1.726
+	},
+	'1794508539': {
+		datetime: '2022-12-05T02:23:04.965Z',
+		side: 'sell',
+		amount: 3898.2999999999997,
+		cost: 6728.4658,
+		price: 1.726
 	}
 }
  
 async function matchTrades() {
 	let pnl = []
-	let position = 0
+	let amount = 0
 	let average_cost = 0
+	let last_entry = ''
 
 	Object.keys(trades).map(k => {
-		if(trades[k].position * position < 0) {
+		if(trades[k].amount * amount < 0) {
 			//closing trade
-			let closing_amount = Math.min(Math.abs(position), Math.abs(trades[k].position))
-			
+			let signal = trades[k].amount < 0 ? -1 : 1
+			let closing_amount = Math.min(Math.abs(amount), Math.abs(trades[k].amount))
+
+			pnl.push({
+				'entry': average_cost / amount, 
+				'exit': trades[k].cost / trades[k].amount, 
+				'profit': (trades[k].cost / trades[k].amount - average_cost / amount) * closing_amount,
+				'exit_when': trades[k].datetime,
+				'duration': moment(trades[k].datetime).from(last_entry, true) 
+			})
+
+			average_cost *= ((Math.abs(amount) - closing_amount) / Math.abs(amount))
+			amount += signal * closing_amount
 		} else {
-			amount += trades[k].position
+			amount += trades[k].amount
 			average_cost += trades[k].cost
+			last_entry = trades[k].datetime
 		}
+		console.log(amount, average_cost, amount !== 0 ? average_cost / amount : 0)
 	})
+
+	console.log(pnl);
 }
