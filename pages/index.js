@@ -11,12 +11,12 @@ const possibleOrderBy = {
 }
 
 export default function Home() {
-//   const { data, error, mutate } = useSWR("/api/crypto", fetcher, { refreshInterval: 2000, refreshWhenHidden: true });
-//   const crossed_alerts = useSWR("/api/alert/crossed", fetcher, { refreshInterval: 2000, refreshWhenHidden: true });
-// 	const impulse = useSWR('api/candle/impulse/1h', fetcher, { refreshInterval: 5 * 60 * 1000 })
-// 	const relative_strength = useSWR('api/candle/relative_strength/1h', fetcher, { refreshInterval: 5 * 60 * 1000 })
-	// useSWR('/api/last_price/update', fetcher, { refreshInterval: 5000, refreshWhenHidden: true })
-	// useSWR('/api/candle/update/1h', fetcher, { refreshInterval: 20*60*1000, refreshWhenHidden: true })
+  const { data, error, mutate } = useSWR("/api/crypto", fetcher, { refreshInterval: 2000, refreshWhenHidden: true });
+  const crossed_alerts = useSWR("/api/alert/crossed", fetcher, { refreshInterval: 2000, refreshWhenHidden: true });
+	const impulse = useSWR('api/candle/impulse/1h', fetcher, { refreshInterval: 5 * 60 * 1000 })
+	const relative_strength = useSWR('api/candle/relative_strength/1h', fetcher, { refreshInterval: 5 * 60 * 1000 })
+	useSWR('/api/last_price/update', fetcher, { refreshInterval: 15000, refreshWhenHidden: true })
+	useSWR('/api/candle/update', fetcher, { refreshInterval: 20*60*1000, refreshWhenHidden: true })
   const [above, setAbove] = useState(true);
   const [price, setPrice] = useState(0);
   const [ticker, setTicker] = useState(0);

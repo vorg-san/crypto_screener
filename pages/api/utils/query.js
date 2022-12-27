@@ -23,6 +23,14 @@ export async function timeframes() {
 	`)
 }
 
+export async function read_candles_timeframes() {
+	return await db.query(`
+		select id, name, minutes 
+		from timeframe 
+		where read_candles=1
+	`)
+}
+
 export async function candles_last_n_by_timeframe(n, idTimeframe) {
 	return await db.query(`
 		select pair_id, start, close
@@ -47,13 +55,44 @@ export async function alertsActive() {
 
 export async function pairsShouldUpdate(idTimeframe) {
 	return (await db.query(`
-		select p.id, max(start) + interval t.minutes minute <= now() as should_update
-		from candle c
-			join pair p on p.id = c.pair_id
-			join timeframe t on t.id = c.timeframe_id 
-		where t.id = ?
-			and p.low_volume = 0
+		select p.id, case when t.id is null then 1 else max(start) + interval t.minutes minute <= now() end as should_update
+		from pair p
+			left join candle c on p.id = c.pair_id
+			left join (
+				select id, minutes
+				from timeframe 
+				where id = ?
+			) t on t.id = c.timeframe_id 
+		where p.low_volume = 0
 		group by c.pair_id 
 		having should_update = 1
 	`, [idTimeframe])).map(r => r['id'])
+}
+
+export async function isTaskRunning(name) {
+	let rows = await db.query(`
+		select running and (last_start + interval 10 minute + interval duration minute) > current_timestamp as running
+		from task 
+		where name = ?
+	`, [name])
+
+	return rows.length ? rows[0]['running'] : false
+}
+
+export async function startTask(name) {
+	let success = !await isTaskRunning(name)
+	if(success)
+		db.query(`
+			update task set running = 1, last_start = current_timestamp, last_end = null where name = ?
+		`, [name])
+	return success
+}
+
+export async function endTask(name) {
+	let success = await isTaskRunning(name)
+	if(success)
+		db.query(`
+			update task set running = 0, last_end = current_timestamp, duration = TIMESTAMPDIFF(MINUTE, last_start, current_timestamp) where name = ?
+		`, [name])
+	return success
 }
