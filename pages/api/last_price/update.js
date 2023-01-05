@@ -8,7 +8,7 @@ const query = require('../utils/query')
 export default async function handler(req, res) {
 	const task = 'last price'
 
-	if(!await query.startTask(task)) {
+	if(!(await query.startTask(task))) {
 		console.error(`could not start task ${task}`)
 		res.status(400).json('could not start task')
 	} else {

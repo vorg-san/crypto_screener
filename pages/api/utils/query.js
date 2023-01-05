@@ -55,7 +55,7 @@ export async function alertsActive() {
 
 export async function pairsShouldUpdate(idTimeframe) {
 	return (await db.query(`
-		select p.id, case when t.id is null then 1 else max(start) + interval t.minutes minute <= now() end as should_update
+		select p.id, case when t.id is null then 1 else max(start) + interval t.minutes minute < now() end as should_update
 		from pair p
 			left join candle c on p.id = c.pair_id
 			left join (
@@ -80,19 +80,23 @@ export async function isTaskRunning(name) {
 }
 
 export async function startTask(name) {
-	let success = !await isTaskRunning(name)
-	if(success)
+	let success = !(await isTaskRunning(name))
+	if(success) {
 		db.query(`
 			update task set running = 1, last_start = current_timestamp, last_end = null where name = ?
 		`, [name])
+		console.log(`starting task ${name}`)
+	}
 	return success
 }
 
 export async function endTask(name) {
 	let success = await isTaskRunning(name)
-	if(success)
+	if(success) {
 		db.query(`
 			update task set running = 0, last_end = current_timestamp, duration = TIMESTAMPDIFF(MINUTE, last_start, current_timestamp) where name = ?
 		`, [name])
+		// console.log(`ending task ${name}`)
+	}
 	return success
 }

@@ -3,11 +3,8 @@ select * from timeframe
 
 select * from task
 
-select 0 and (last_start + interval 10 minute + interval duration minute) < current_timestamp as run 
-from task 
-where name='candle update'
-
-update tast set running = 0, last_start=null, last_end=null
+select running and (last_start + interval 10 minute + interval duration minute) > current_timestamp as running
+		from task 
 
 select * from alert 
 
